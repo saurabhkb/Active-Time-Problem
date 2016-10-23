@@ -62,24 +62,33 @@ while True:
 		# keep randomly generating jobs until a feasible schedule is obtained
 		infeasible = True
 		jobs = []
+		for t in range(T):
+			G.add_edge("t%d" % t, 'sink', capacity=g)
 		while infeasible:
 			processing_time_sum = 0
 			jobs = []
-			for i in range(n):
+			i = 0
+			while i < n:
 				r, d, p = random_job(T)
 				jobs.append((r, d, p))
 				G.add_edge('src', "j%d" % i, capacity=p)
 				processing_time_sum += p
 				for t in range(r, d + 1):
 					G.add_edge("j%d" % i, "t%d" % t, capacity=1)
-			for t in range(T):
-				G.add_edge("t%d" % t, 'sink', capacity=g)
+				if nx.maximum_flow(G, 'src', 'sink')[0] < processing_time_sum:
+					G.remove_edge('src', "j%d" % i)
+					for t in range(r, d + 1):
+						G.remove_edge("j%d" % i, "t%d" % t)
+					continue
+				else:
+					i += 1
 			infeasible = nx.maximum_flow(G, 'src', 'sink')[0] < processing_time_sum
 
 		# shift schedule so that at least one job starts at time 0
 		delta = min([x[0] for x in jobs])	# earliest release time
 		# write that schedule to a file
 		with open("%s/inst%d" % (dirname, inst), "w") as f:
+			f.write("%d\n" % g)
 			for j in jobs:
 				f.write("%d %d %d\n" % (j[0] - delta, j[1] - delta, j[2]))
 

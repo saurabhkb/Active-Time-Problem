@@ -57,12 +57,13 @@ typedef struct {
 
 Edesc AddEdge(ATI &, Vdesc &, Vdesc &, double);
 void minimal_feasible_schedule(ATI &);
+void print_num_open_timeslots(ATI &);
 void print_open_timeslots(ATI &);
 void print_all_timeslots(ATI &);
 void add_job(ATI &, int, int, int);
 void ati_jobadd_complete(ATI &);
-void ati_init(ATI &, int);
+void ati_init(ATI &);
 bool feasible_schedule_exists(ATI &);
 void close_timeslot(ATI &, Vdesc);
 void open_timeslot(ATI &, Vdesc);
-
+void details(ATI &);

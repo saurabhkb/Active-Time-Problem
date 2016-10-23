@@ -17,20 +17,19 @@ subject to:
 
 jobs = []
 with open(sys.argv[1]) as f:
+	g = int(f.readline().strip())
 	for l in f:
-		print l
 		r, d, p = map(int, l.split())
 		jobs.append((r, d, p))
-print jobs
 
 # obtain parameters
 n = len(jobs)
 T = max([x[1] for x in jobs])
-g = 10
+print "#jobs = ", n, "\n#times = ", T
 
 # create x[t, j] and y[t] variables
-y = [0] * T
-x = [[0] * n] * T
+y = [0 for t in range(T)]
+x = [[0 for j in range(n)] for t in range(T)]
 
 try:
 	m = Model("LP")

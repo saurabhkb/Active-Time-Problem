@@ -8,8 +8,6 @@
 
 typedef std::vector<int> combination_t;
 
-#define DEFAULT_CAPACITY	10
-
 typedef struct {
 	int N, R, generated;
 	combination_t curr;
@@ -115,6 +113,7 @@ void localsearch2(ATI &ati) {
 
 void read_jobdata_stdin(ATI &ati) {
 	int r, d, p;
+	std::cin >> ati.cap;
 	while(std::cin >> r >> d >> p)
 		add_job(ati, r, d, p);
 }
@@ -140,26 +139,26 @@ void create_tight_3example(ATI &ati, int g) {
 
 int main(int argc, char **argv) {
 	ATI ati;
-	int cap = DEFAULT_CAPACITY;
 
-	if(argc == 2) {
-		cap = atoi(argv[1]);
-	}
-
-	ati_init(ati, cap);
-	create_tight_3example(ati, cap);
+	ati_init(ati);
+	read_jobdata_stdin(ati);
 	ati_jobadd_complete(ati);
+
+	details(ati);
 
 	// print_all_timeslots(ati);
 	if(!feasible_schedule_exists(ati)) {
 		std::cout << "instance is infeasible!" << std::endl;
 		return 0;
+	} else {
+		std::cout << "instance is feasible" << std::endl;
 	}
 	// obtain minimal feasible schedule
 	minimal_feasible_schedule(ati);
 	// greedy_lr(ati);
+	print_num_open_timeslots(ati);
 
-	print_open_timeslots(ati);
+	// print_open_timeslots(ati);
 
 	return 0;
 }
