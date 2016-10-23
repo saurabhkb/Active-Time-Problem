@@ -1,5 +1,5 @@
 '''
-Adapted from Jessica Chang's PhD thesis
+Adapted from the empirical evaluation section of Jessica Chang's PhD thesis
 
 [Chang, Jessica. Energy-aware batch scheduling. Diss. 2013.]
 
@@ -17,26 +17,22 @@ x N1 N2 M1 M2 B
 .
 .
 .
+
 This program will create x feasible instances of the active time problem with parameters (N1, N2, M1, M2, B) and store them in a folder named pN1_N2_M1_M2_B and each instance file will be named inst0, inst1, ...
 '''
 
 import networkx as nx
 import os, sys
-import random
+from random import randint
 
 def random_job(T):
-	r = 0
-	d = 0
-	p = 0
-	while r >= d:
-		r = random.randint(0, T)
-		if r < T:
-			d = random.randint(r + 1, T)
-			p = random.randint(1, d - r)
-		else: d = -1
+	r = randint(0, T)
+	d = randint(r, T)
+	p = randint(1, d - r + 1)	# range is [r, d] => d - r + 1 slots
 	return (r, d, p)
 
 while True:
+	# read parameters in from stdin
 	try:
 		l = sys.stdin.readline()
 		if l == "" or l == None: break
@@ -44,15 +40,17 @@ while True:
 	except EOFError as e:
 		break
 
+	# create the directory unless one already exists
 	dirname = "data/p%d_%d_%d_%d_%d" % (N1, N2, M1, M2, B)
 	if not os.path.exists(dirname):
 		os.makedirs(dirname)
 
+	# cycle through the instance list and generate instances accordingly
 	for inst in range(num_instances):
-		# generate random parameters using ranges given
-		n = random.randint(N1, N2)
-		T = random.randint(M1, M2)
-		g = random.randint(B / 2, B)
+		# generate random parameters using ranges given for the instance
+		n = randint(N1, N2)
+		T = randint(M1, M2)
+		g = randint(B / 2, B)
 
 		# create a bipartite digraph representing the instance
 		G = nx.DiGraph()
@@ -60,32 +58,36 @@ while True:
 		G.add_node('sink')
 
 		# keep randomly generating jobs until a feasible schedule is obtained
-		infeasible = True
 		jobs = []
 		for t in range(T):
 			G.add_edge("t%d" % t, 'sink', capacity=g)
-		while infeasible:
-			processing_time_sum = 0
-			jobs = []
-			i = 0
-			while i < n:
-				r, d, p = random_job(T)
-				jobs.append((r, d, p))
-				G.add_edge('src', "j%d" % i, capacity=p)
-				processing_time_sum += p
+		processing_time_sum = 0
+		jobs = []
+		i = 0
+		while i < n:
+			r, d, p = random_job(T)
+
+			# tentatively add job in to the graph
+			processing_time_sum += p
+			G.add_edge('src', "j%d" % i, capacity=p)
+			for t in range(r, d + 1):
+				G.add_edge("j%d" % i, "t%d" % t, capacity=1)
+
+			# check if job maintains feasibility of instance
+			if nx.maximum_flow(G, 'src', 'sink')[0] < processing_time_sum:
+				# no it does not, so remove any evidence of its existence
+				G.remove_edge('src', "j%d" % i)
 				for t in range(r, d + 1):
-					G.add_edge("j%d" % i, "t%d" % t, capacity=1)
-				if nx.maximum_flow(G, 'src', 'sink')[0] < processing_time_sum:
-					G.remove_edge('src', "j%d" % i)
-					for t in range(r, d + 1):
-						G.remove_edge("j%d" % i, "t%d" % t)
-					continue
-				else:
-					i += 1
-			infeasible = nx.maximum_flow(G, 'src', 'sink')[0] < processing_time_sum
+					G.remove_edge("j%d" % i, "t%d" % t)
+				processing_time_sum -= p
+			else:
+				# yes it does, so add it in and keep the updates made
+				jobs.append((r, d, p))
+				i += 1
 
 		# shift schedule so that at least one job starts at time 0
-		delta = min([x[0] for x in jobs])	# earliest release time
+		delta = min([j[0] for j in jobs])	# earliest release time
+
 		# write that schedule to a file
 		with open("%s/inst%d" % (dirname, inst), "w") as f:
 			f.write("%d\n" % g)
