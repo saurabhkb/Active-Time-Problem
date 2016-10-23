@@ -10,20 +10,18 @@ N1 <= #jobs <= N2
 M1 <= #times <= M2
 B / 2 <= capacity <= B
 
-each job randomly chooses its release time, a deadline for its release time and a job length no more than the length of its feasible window
+Each job randomly chooses its release time, a deadline for its release time and a job length no more than the length of its feasible window
 
 Expected Input:
-x
-N1
-N2
-M1
-M2
-B
-This program will create x feasible instances of the active time problem and store them in a folder named paramN1_N2_M1_M2_B and each instance file will be numbered 1, 2, ...
+x N1 N2 M1 M2 B
+.
+.
+.
+This program will create x feasible instances of the active time problem with parameters (N1, N2, M1, M2, B) and store them in a folder named pN1_N2_M1_M2_B and each instance file will be named inst0, inst1, ...
 '''
 
 import networkx as nx
-import os
+import os, sys
 import random
 
 def random_job(T):
@@ -40,12 +38,9 @@ def random_job(T):
 
 while True:
 	try:
-		num_instances = input()
-		N1 = input()
-		N2 = input()
-		M1 = input()
-		M2 = input()
-		B = input()
+		l = sys.stdin.readline()
+		if l == "" or l == None: break
+		num_instances, N1, N2, M1, M2, B = map(int, l.strip().split())
 	except EOFError as e:
 		break
 
@@ -81,8 +76,10 @@ while True:
 				G.add_edge("t%d" % t, 'sink', capacity=g)
 			infeasible = nx.maximum_flow(G, 'src', 'sink')[0] < processing_time_sum
 
+		# shift schedule so that at least one job starts at time 0
+		delta = min([x[0] for x in jobs])	# earliest release time
 		# write that schedule to a file
 		with open("%s/inst%d" % (dirname, inst), "w") as f:
 			for j in jobs:
-				f.write("%d %d %d\n" % (j[0], j[1], j[2]))
+				f.write("%d %d %d\n" % (j[0] - delta, j[1] - delta, j[2]))
 
