@@ -16,9 +16,8 @@ subject to:
 """
 
 # read the data file
-with open(sys.argv[1]) as f:
-	g = int(f.readline().strip())
-	jobs = [map(int, l.split()) for l in f]
+g = int(sys.stdin.readline().strip())
+jobs = [map(int, l.split()) for l in sys.stdin]
 
 
 # obtain parameters
