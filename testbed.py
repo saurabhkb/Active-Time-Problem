@@ -25,6 +25,9 @@ import networkx as nx
 import os, sys
 from random import randint
 
+MAX_FAILURES = 100
+
+
 def random_job(T):
 	r = randint(0, T)
 	d = randint(r, T)
@@ -64,7 +67,8 @@ while True:
 		processing_time_sum = 0
 		jobs = []
 		i = 0
-		while i < n:
+		num_failures = 0
+		while i < n and num_failures < MAX_FAILURES:
 			r, d, p = random_job(T)
 
 			# tentatively add job in to the graph
@@ -80,9 +84,11 @@ while True:
 				for t in range(r, d + 1):
 					G.remove_edge("j%d" % i, "t%d" % t)
 				processing_time_sum -= p
+				num_failures += 1
 			else:
 				# yes it does, so add it in and keep the updates made
 				jobs.append((r, d, p))
+				num_failures = 0
 				i += 1
 
 		# shift schedule so that at least one job starts at time 0
