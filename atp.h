@@ -1,19 +1,14 @@
-#include <boost/config.hpp>
 #include <boost/graph/push_relabel_max_flow.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <iostream>
-#include <cstring>
-#include <cassert>
-
-#define JOB		0
-#define TIME	1
-#define SRC		2
-#define SINK	3
 
 #define MAXJOBS	100
 #define MAXTIMES	200
 
 using namespace boost;
+
+// type of the node in the graph
+enum Type {JOB, TIME, SRC, SINK};
 
 // definitions taken from:
 // http://programmingexamples.net/wiki/CPP/Boost/BGL/MaxFlow
@@ -22,6 +17,9 @@ typedef Traits::vertex_descriptor Vdesc;
 typedef Traits::edge_descriptor Edesc;
 
 typedef struct {
+	// determines what type of node this is
+	Type type;
+
 	// to be used by job nodes
 	int jobid;
 	int r, d, p;
@@ -29,7 +27,6 @@ typedef struct {
 	// to be used by time nodes
 	int t;
 	bool closed;
-	int type;
 } Vertex;
 
 typedef adjacency_list<
