@@ -10,7 +10,7 @@ subject to:
 
 	sum_j(x[t, j]) <= g * y_t		for all t in T
 
-	sum_t(x[t, j]) >= pj			for all j in J
+	sum_{r_j <= t <= d_j}(x[t, j]) >= pj			for all j in J
 
 	x[t, j], y[t] >= 0				for all j in J, t in T
 """
@@ -22,9 +22,7 @@ jobs = [map(int, l.split()) for l in sys.stdin]
 
 # obtain parameters
 n = len(jobs)
-T = max([x[1] for x in jobs])
-print "#jobs = ", n, "\n#times = ", T
-
+T = max([x[1] for x in jobs]) + 1
 
 # create the model and attempt to solve it
 try:
@@ -47,7 +45,7 @@ try:
 
 	# constraint 3
 	for j in range(n):
-		m.addConstr(sum([x[t][j] for t in range(T)]) >= jobs[j][2], "c3_%d" % j)
+		m.addConstr(sum([x[t][j] for t in range(jobs[j][0], jobs[j][1] + 1)]) >= jobs[j][2], "c3_%d" % j)
 
 	# constraint 4
 	for t in range(T):
@@ -56,7 +54,10 @@ try:
 			m.addConstr(x[t][j] >= 0, "c4_%d_%d" % (t, j))
 
 	m.optimize()
-	print "OPT = ", m.objVal
+	print m.objVal
+	#print "OPT = ", m.objVal
+	#for t in range(T):
+	#	print t, m.getVarByName("y_%d" % t).X
 
 except GurobiError as e:
 	print "Error reported: ", e
