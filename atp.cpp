@@ -4,10 +4,10 @@ void construct_edges(ATI &);
 void add_time_vertices(ATI &, int);
 
 void details(ATI &ati) {
-	std::cout << "total job mass = " << ati.processing_time_sum << std::endl;
+	// std::cout << "total job mass = " << ati.processing_time_sum << std::endl;
 	std::cout << "#jobs = " << ati.num_jobs << std::endl;
 	std::cout << "#times = " << ati.num_times << std::endl;
-	std::cout << "cap = " << ati.cap << std::endl;
+	// std::cout << "cap = " << ati.cap << std::endl;
 }
 
 // helper method to create edge between v1 and v2
@@ -23,12 +23,12 @@ Edesc AddEdge(ATI &ati, Vdesc &v1, Vdesc &v2, double capacity) {
 	return e1;
 }
 
-void print_num_open_timeslots(ATI &ati) {
+int get_num_open_timeslots(ATI &ati) {
 	int count = 0;
 	for(int i = 0; i <= ati.num_times; i++) {
 		if(!ati.g[ati.timenodes[i]].closed) count++;
 	}
-	std::cout << "# = " << count << std::endl;
+	return count;
 }
 
 void print_open_timeslots(ATI &ati) {
