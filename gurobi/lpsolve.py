@@ -19,7 +19,6 @@ subject to:
 g = int(sys.stdin.readline().strip())
 jobs = [map(int, l.split()) for l in sys.stdin]
 
-
 # obtain parameters
 n = len(jobs)
 T = max([x[1] for x in jobs]) + 1
@@ -60,4 +59,5 @@ try:
 	#	print t, m.getVarByName("y_%d" % t).X
 
 except GurobiError as e:
+	print "LP infeasible!"
 	print "Error reported: ", e

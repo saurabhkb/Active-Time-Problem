@@ -1,32 +1,24 @@
 #include "atp.h"
 #include <vector>
 #include <algorithm>
-#include <ctime>
 
-void minimal_feasible_schedule(ATI &ati) {
+void greedy_lr(ATI &ati) {
 	bool schedule_changed = true;
-	std::srand(unsigned(std::time(0)));
-	std::vector<int> v;
-	for(int i = 0; i <= ati.num_times; i++) {
-		if(!ati.g[ati.timenodes[i]].closed) v.push_back(i);
-	}
 	while(schedule_changed) {
 		schedule_changed = false;
-		std::random_shuffle(v.begin(), v.end());
 		for(int i = 0; i <= ati.num_times; i++) {
-			if(ati.g[ati.timenodes[v[i]]].closed)
+			if(ati.g[ati.timenodes[i]].closed)
 				continue;
-			close_timeslot(ati, ati.timenodes[v[i]]);
+			close_timeslot(ati, ati.timenodes[i]);
 			if(!feasible_schedule_exists(ati)) {
-				open_timeslot(ati, ati.timenodes[v[i]]);
+				open_timeslot(ati, ati.timenodes[i]);
 			} else {
-				ati.g[ati.timenodes[v[i]]].closed = true;
+				ati.g[ati.timenodes[i]].closed = true;
 				schedule_changed = true;
 			}
 		}
 	}
 }
-
 
 void read_jobdata_stdin(ATI &ati) {
 	int r, d, p;
@@ -67,19 +59,21 @@ void timespec_diff(struct timespec &start, struct timespec &stop, struct timespe
 int main(int argc, char **argv) {
 	ATI ati;
 
+	Timer t;
+
 	ati_init(ati);
 	read_jobdata_stdin(ati);
 	ati_jobadd_complete(ati);
 
-	timespec start, end, diff;
+	// details(ati);
 
 	// obtain minimal feasible schedule and print the number of slots used
-	clock_gettime(CLOCK_REALTIME, &start);
-	minimal_feasible_schedule(ati);
-	clock_gettime(CLOCK_REALTIME, &end);
+	start_timer(t);
+	greedy_lr(ati);
+	stop_timer(t);
 
-	timespec_diff(start, end, diff);
-	std::cout << diff.tv_sec << ":" << diff.tv_nsec << std::endl;
+	std::cout << get_duration(t) << std::endl;
+	// std::cout << diff.tv_sec << ":" << diff.tv_nsec << std::endl;
 
 	int soln = get_num_open_timeslots(ati);
 	std::cout << soln << std::endl;
