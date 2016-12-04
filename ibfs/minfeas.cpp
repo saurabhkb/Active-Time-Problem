@@ -16,13 +16,13 @@ vector<bool> minimal_feasible_schedule(ATI &ati) {
 		schedule_changed = false;
 		random_shuffle(v.begin(), v.end());
 		for(int i = 0; i < ati.num_times; i++) {
-			if(closed[i])
+			if(closed[v[i]])
 				continue;
-			close_timeslot(ati, i);
+			close_timeslot(ati, v[i]);
 			if(!feasible_schedule_exists(ati)) {
-				open_timeslot(ati, i);
+				open_timeslot(ati, v[i]);
 			} else {
-				closed[i] = true;
+				closed[v[i]] = true;
 				schedule_changed = true;
 			}
 		}
