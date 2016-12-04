@@ -1,4 +1,9 @@
-# Active-Time-Problem
+# Energy Efficient Scheduling
+
+The active time problem seeks to schedule a set of jobs on a machine with the goal of optimizing the energy usage of the system. The problem was introduced by Chang, Gabow and Khuller (Chang, Jessica, Harold N. Gabow, and Samir Khuller. "A model for minimizing active processor time." European Symposium on Algorithms. Springer Berlin Heidelberg, 2012.) in 2012.
+
+The energy usage of the system is measured in terms of the number of time slots that the machine is ON processing at least one job. Our goal is to come up with a schedule that minimizes the number of time slots that the machine is on while still ensuring that we respect the release times and deadlines of the jobs as well as the allowed amount of parallelism for the machine.
+
 Boost and IBFS based implementations of the MINFEAS and GREEDY algorithms for the active time problem.
 
 Running `make` within the boost and ibfs directories will create the corresponding minfeas and greedy executables.
