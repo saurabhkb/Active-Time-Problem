@@ -3,19 +3,14 @@
 #include <algorithm>
 
 void greedy_lr(ATI &ati) {
-	bool schedule_changed = true;
-	while(schedule_changed) {
-		schedule_changed = false;
-		for(int i = 0; i <= ati.num_times; i++) {
-			if(ati.g[ati.timenodes[i]].closed)
-				continue;
-			close_timeslot(ati, ati.timenodes[i]);
-			if(!feasible_schedule_exists(ati)) {
-				open_timeslot(ati, ati.timenodes[i]);
-			} else {
-				ati.g[ati.timenodes[i]].closed = true;
-				schedule_changed = true;
-			}
+	for(int i = 0; i <= ati.num_times; i++) {
+		if(ati.g[ati.timenodes[i]].closed)
+			continue;
+		close_timeslot(ati, ati.timenodes[i]);
+		if(!feasible_schedule_exists(ati)) {
+			open_timeslot(ati, ati.timenodes[i]);
+		} else {
+			ati.g[ati.timenodes[i]].closed = true;
 		}
 	}
 }

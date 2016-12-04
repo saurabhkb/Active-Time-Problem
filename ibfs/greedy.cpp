@@ -4,23 +4,18 @@
 #include <ctime>
 
 vector<bool> greedy_lr(ATI &ati) {
-	bool schedule_changed = true;
 	vector<bool> closed;
 	for(int i = 0; i < ati.num_times; i++) {
 		closed.push_back(false);
 	}
-	while(schedule_changed) {
-		schedule_changed = false;
-		for(int i = 0; i < ati.num_times; i++) {
-			if(closed[i])
-				continue;
-			close_timeslot(ati, i);
-			if(!feasible_schedule_exists(ati)) {
-				open_timeslot(ati, i);
-			} else {
-				closed[i] = true;
-				schedule_changed = true;
-			}
+	for(int i = 0; i < ati.num_times; i++) {
+		if(closed[i])
+			continue;
+		close_timeslot(ati, i);
+		if(!feasible_schedule_exists(ati)) {
+			open_timeslot(ati, i);
+		} else {
+			closed[i] = true;
 		}
 	}
 	return closed;
