@@ -16,7 +16,7 @@ So you can run it as: `./minfeas < problem_instance_file` or `./greedy < problem
 
 The output will be on two lines - the first line will be the time taken to run in ns, the second line will be the cost of the solution.
 
-To run the LP solver in the gurobi directory, you will need to have Gurobi and then it can be run as `gurobi.sh python lpsolve.py < problem_instance_file`.
+To run the LP solver in the gurobi directory, you will need to have Gurobi and then it can be run as `gurobi.sh lpsolve.py < problem_instance_file`.
 
 
 ####  IBFS
