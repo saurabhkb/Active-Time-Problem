@@ -60,19 +60,15 @@ int main(int argc, char **argv) {
 	read_jobdata_stdin(ati);
 	ati_jobadd_complete(ati);
 
-	// details(ati);
-
 	// obtain minimal feasible schedule and print the number of slots used
 	start_timer(t);
 	greedy_lr(ati);
 	stop_timer(t);
 
 	std::cout << get_duration(t) << std::endl;
-	// std::cout << diff.tv_sec << ":" << diff.tv_nsec << std::endl;
 
 	int soln = get_num_open_timeslots(ati);
 	std::cout << soln << std::endl;
-	// print_open_timeslots(ati);
 
 	return 0;
 }

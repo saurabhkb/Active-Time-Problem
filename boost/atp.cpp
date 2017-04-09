@@ -4,10 +4,8 @@ void construct_edges(ATI &);
 void add_time_vertices(ATI &, int);
 
 void details(ATI &ati) {
-	// std::cout << "total job mass = " << ati.processing_time_sum << std::endl;
 	std::cout << "#jobs = " << ati.num_jobs << std::endl;
 	std::cout << "#times = " << ati.num_times << std::endl;
-	// std::cout << "cap = " << ati.cap << std::endl;
 }
 
 // helper method to create edge between v1 and v2
@@ -137,8 +135,6 @@ void construct_edges(ATI &ati) {
 }
 
 bool feasible_schedule_exists(ATI &ati) {
-	// std::cout << "flow = " << push_relabel_max_flow(ati.g, ati.src, ati.sink) << std::endl;
-	// std::cout << "sum = " << ati.processing_time_sum << std::endl;
 	return ati.processing_time_sum <= push_relabel_max_flow(ati.g, ati.src, ati.sink);
 }
 
