@@ -5,18 +5,19 @@
 
 using namespace std;
 
-typedef struct {
-	IBFSGraph *Graph;
-	int cap;
-	int num_jobs;
+class Schedule {
+public:
 	int num_times;
+	int num_jobs;
+	int cap;
 	int processing_time_sum;
-} ATI;
 
+	void read_job_data();
+	void close_timeslot(int);
+	void open_timeslot(int);
+	bool is_feasible();
 
-void ati_init(ATI &, int, int, int);
-void add_jobs(ATI &, vector<int>, vector<int>, vector<int>);
-void close_timeslot(ATI &, int);
-void open_timeslot(ATI &, int);
-bool feasible_schedule_exists(ATI &);
-void read_jobdata_stdin(ATI &);
+private:
+	IBFSGraph *Graph;
+};
+

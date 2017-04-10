@@ -6,14 +6,14 @@
 #define MAXJOBS	100
 #define MAXTIMES	200
 
-using namespace boost;
+//using namespace boost;
 
 // type of the node in the graph
 enum Type {JOB, TIME, SRC, SINK};
 
 // definitions taken from:
 // http://programmingexamples.net/wiki/CPP/Boost/BGL/MaxFlow
-typedef adjacency_list_traits<vecS, vecS, directedS> Traits;
+typedef boost::adjacency_list_traits<boost::vecS, boost::vecS, boost::directedS> Traits;
 typedef Traits::vertex_descriptor Vdesc;
 typedef Traits::edge_descriptor Edesc;
 
@@ -30,38 +30,41 @@ typedef struct {
 	bool closed;
 } Vertex;
 
-typedef adjacency_list<
-	listS,
-	vecS,
-	directedS,
+typedef boost::adjacency_list<
+	boost::listS,
+	boost::vecS,
+	boost::directedS,
 	Vertex,	// vertex properties
-	property<edge_capacity_t, int,			// edge capacity
-		property<edge_residual_capacity_t, int,		// edge residual capacity
-			property<edge_reverse_t, Edesc> > >		// reverse edge descriptor
+	boost::property<boost::edge_capacity_t, int,			// edge capacity
+		boost::property<boost::edge_residual_capacity_t, int,		// edge residual capacity
+			boost::property<boost::edge_reverse_t, Edesc> > >		// reverse edge descriptor
 > Graph;
 
-typedef struct {
-	Graph g;
-	property_map <Graph, edge_reverse_t>::type rev;
-	property_map <Graph, edge_capacity_t>::type capacity_map;
-	Vdesc src, sink;
-	Vdesc jobnodes[MAXJOBS], timenodes[MAXTIMES];
+class Schedule {
+public:
 	int processing_time_sum;
 	int num_jobs;
 	int num_times;
 	int cap;
-} ATI;
+
+	Schedule();
+	void minimal_feasible_schedule();
+	int get_num_open_timeslots();
+	bool is_closed(int);
+	void read_job_data();
+	bool is_feasible();
+	void close_timeslot(int);
+	void open_timeslot(int);
+
+private:
+	Graph g;
+	boost::property_map <Graph, boost::edge_reverse_t>::type rev;
+	boost::property_map <Graph, boost::edge_capacity_t>::type capacity_map;
+	Vdesc src, sink;
+	Vdesc jobnodes[MAXJOBS], timenodes[MAXTIMES];
+
+	Edesc add_edge_wrapper(Vdesc &, Vdesc &, double);
+	void add_job(int, int, int);
+};
 
 
-Edesc AddEdge(ATI &, Vdesc &, Vdesc &, double);
-void minimal_feasible_schedule(ATI &);
-int get_num_open_timeslots(ATI &);
-void print_open_timeslots(ATI &);
-void print_all_timeslots(ATI &);
-void add_job(ATI &, int, int, int);
-void ati_jobadd_complete(ATI &);
-void ati_init(ATI &);
-bool feasible_schedule_exists(ATI &);
-void close_timeslot(ATI &, Vdesc);
-void open_timeslot(ATI &, Vdesc);
-void details(ATI &);

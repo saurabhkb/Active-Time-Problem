@@ -3,17 +3,17 @@
 #include <algorithm>
 #include <ctime>
 
-vector<bool> greedy_lr(ATI &ati) {
+vector<bool> greedy_lr(Schedule& sched) {
 	vector<bool> closed;
-	for(int i = 0; i < ati.num_times; i++) {
+	for(int i = 0; i < sched.num_times; i++) {
 		closed.push_back(false);
 	}
-	for(int i = 0; i < ati.num_times; i++) {
+	for(int i = 0; i < sched.num_times; i++) {
 		if(closed[i])
 			continue;
-		close_timeslot(ati, i);
-		if(!feasible_schedule_exists(ati)) {
-			open_timeslot(ati, i);
+		sched.close_timeslot(i);
+		if(!sched.is_feasible()) {
+			sched.open_timeslot(i);
 		} else {
 			closed[i] = true;
 		}
@@ -23,15 +23,15 @@ vector<bool> greedy_lr(ATI &ati) {
 
 
 int main(int argc, char **argv) {
-	ATI ati;
+	Schedule sched;
 
 	Timer t;
 
-	read_jobdata_stdin(ati);
+	sched.read_job_data();
 
 	// obtain minimal feasible schedule and print the number of slots used
 	start_timer(t);
-	vector<bool> closed = greedy_lr(ati);
+	vector<bool> closed = greedy_lr(sched);
 	stop_timer(t);
 
 	std::cout << get_duration(t) << std::endl;

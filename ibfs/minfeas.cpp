@@ -3,24 +3,24 @@
 #include <algorithm>
 #include <ctime>
 
-vector<bool> minimal_feasible_schedule(ATI &ati) {
+vector<bool> minimal_feasible_schedule(Schedule& sched) {
 	bool schedule_changed = true;
 	srand(unsigned(time(0)));
 	vector<int> v;
 	vector<bool> closed;
-	for(int i = 0; i < ati.num_times; i++) {
+	for(int i = 0; i < sched.num_times; i++) {
 		v.push_back(i);
 		closed.push_back(false);
 	}
 	while(schedule_changed) {
 		schedule_changed = false;
 		random_shuffle(v.begin(), v.end());
-		for(int i = 0; i < ati.num_times; i++) {
+		for(int i = 0; i < sched.num_times; i++) {
 			if(closed[v[i]])
 				continue;
-			close_timeslot(ati, v[i]);
-			if(!feasible_schedule_exists(ati)) {
-				open_timeslot(ati, v[i]);
+			sched.close_timeslot(v[i]);
+			if(!sched.is_feasible()) {
+				sched.open_timeslot(v[i]);
 			} else {
 				closed[v[i]] = true;
 				schedule_changed = true;
@@ -32,12 +32,12 @@ vector<bool> minimal_feasible_schedule(ATI &ati) {
 
 
 int main() {
-	ATI ati;
+	Schedule sched;
 	Timer t;
-	read_jobdata_stdin(ati);
+	sched.read_job_data();
 
 	start_timer(t);
-	vector<bool> closed = minimal_feasible_schedule(ati);
+	vector<bool> closed = minimal_feasible_schedule(sched);
 	stop_timer(t);
 
 	cout << get_duration(t) << endl;

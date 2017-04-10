@@ -1,63 +1,61 @@
 #include "atp.h"
 #include "../timer/timer.h"
 
-void details(ATI &ati) {
-	cout << "num_jobs = " << ati.num_jobs << endl;
-	cout << "num_times = " << ati.num_times << endl;
-	cout << "processing_time_sum = " << ati.processing_time_sum << endl;
-}
-
-void ati_init(ATI &ati, int num_jobs, int num_times, int m) {
-	ati.num_jobs = num_jobs;
-	ati.num_times = num_times;
-	ati.processing_time_sum = 0;
-	ati.Graph = new IBFSGraph(IBFSGraph::IB_INIT_FAST);
-	ati.Graph->initSize(num_jobs + num_times, m);
-
-	// add time nodes with capacity g
-	for(int i = 0; i < num_times; i++) {
-		ati.Graph->addNode(num_jobs + i, 0, ati.cap);
-	}
-}
-
-void add_jobs(ATI &ati, vector<int> rvec, vector<int> dvec, vector<int> pvec) {
-	for(int i = 0; i < ati.num_jobs; i++) {
-		ati.Graph->addNode(i, pvec[i], 0);
-		ati.processing_time_sum += pvec[i];
-		for(int j = rvec[i]; j <= dvec[i]; j++) {
-			ati.Graph->addEdge(i, ati.num_jobs + j, 1, 0);
-		}
-	}
-	ati.Graph->initGraph();
-	ati.Graph->computeMaxFlow(true);	// compute initial flow (need this or it will segfault)
-}
-
-void close_timeslot(ATI &ati, int t) {
-	ati.Graph->incNode(ati.num_jobs + t, 0, -ati.cap);
-}
-
-void open_timeslot(ATI &ati, int t) {
-	ati.Graph->incNode(ati.num_jobs + t, 0, ati.cap);
-}
-
-bool feasible_schedule_exists(ATI &ati) {
-	ati.Graph->computeMaxFlow(true);
-	return ati.Graph->getFlow() == ati.processing_time_sum;
-}
-
-
-void read_jobdata_stdin(ATI &ati) {
+void Schedule::read_job_data() {
 	int r, d, p;
-	int m = 0, max_deadline = -1;
+	int max_deadline = -1, num_edges = 0;
 	vector<int> rvec, dvec, pvec;
-	std::cin >> ati.cap;
-	while(std::cin >> r >> d >> p) {
+
+	processing_time_sum = 0;
+
+	// read job data
+	cin >> cap;
+	while(cin >> r >> d >> p) {
 		rvec.push_back(r);
 		dvec.push_back(d);
 		pvec.push_back(p);
 		if(max_deadline < d) max_deadline = d;
-		m += d - r + 1;
+		num_edges += d - r + 1;
 	}
-	ati_init(ati, rvec.size(), max_deadline + 1, m);
-	add_jobs(ati, rvec, dvec, pvec);
+
+	// initialize private variables
+	num_jobs = rvec.size();
+	num_times = max_deadline + 1;
+
+	// initialize internal graph representation
+	Graph = new IBFSGraph(IBFSGraph::IB_INIT_FAST);
+
+	// number of edges does not include edges from the source and to the sink
+	// there will be one edge between the job and time nodes per time unit that the job is alive
+	Graph->initSize(num_jobs + num_times, num_edges);
+
+	// add time nodes with capacity g
+	for(int i = 0; i < num_times; i++) {
+		Graph->addNode(num_jobs + i, 0, cap);
+	}
+
+	// add job nodes
+	for(int i = 0; i < num_jobs; i++) {
+		Graph->addNode(i, pvec[i], 0);
+		processing_time_sum += pvec[i];
+		for(int j = rvec[i]; j <= dvec[i]; j++) {
+			Graph->addEdge(i, num_jobs + j, 1, 0);
+		}
+	}
+
+	Graph->initGraph();
+	Graph->computeMaxFlow(true);	// compute initial flow (need this or it will segfault)
+}
+
+void Schedule::close_timeslot(int t) {
+	Graph->incNode(num_jobs + t, 0, -cap);
+}
+
+void Schedule::open_timeslot(int t) {
+	Graph->incNode(num_jobs + t, 0, cap);
+}
+
+bool Schedule::is_feasible() {
+	Graph->computeMaxFlow(true);
+	return Graph->getFlow() == processing_time_sum;
 }
