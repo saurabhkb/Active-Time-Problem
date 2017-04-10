@@ -23,6 +23,8 @@ The output will be on two lines - the first line will be the time taken to run i
 
 To run the LP solver in the gurobi directory, you will need to have Gurobi and then it can be run as `gurobi.sh lpsolve.py < problem_instance_file`.
 
+For now, the local search algorithm can be run by adding a main method to the file `local_search.py` and calling teh required functions. A sample is shown in the file itself.
+
 
 ####  IBFS
 The IBFS implementation comes from the Maximum Flow Project (http://www.cs.tau.ac.il/~sagihed/ibfs/code.html) and is based on the following two papers:
