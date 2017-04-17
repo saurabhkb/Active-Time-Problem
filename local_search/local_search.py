@@ -1,6 +1,7 @@
 import networkx as nx
 import itertools
 from PIL import Image, ImageDraw, ImageFont
+from argparse import ArgumentParser
 
 class Schedule:
 	def __init__(self):
@@ -145,25 +146,31 @@ class Schedule:
 		fontsize = 15
 		img = Image.new('RGB', (len(schedule) * 50, self.B * 50), "white")
 		draw = ImageDraw.Draw(img)
-		fnt = ImageFont.truetype("../arial.ttf", fontsize)
+		fnt = ImageFont.truetype("arial.ttf", fontsize)
 		for x, jobs in enumerate(schedule):
 			for y, j in enumerate(jobs):
 				draw.text((x * 40, (self.B - y) * 30), str(j), (3, 3, 3), fnt)
 		img.save(output)
 
-# # Sample Usage
-# def main():
-# 	B = 4
-# 	S = Schedule()
-# 	S.read_job_data("job_data", B)
-# 	if not S.read_schedule_file("sched"):
-# 		print "Schedule not feasible!"
-# 	else:
-# 		# S.find_minimal_feasible()
-# 		S.draw_schedule("before.png")
-# 		S.local_b(2)
-# 		S.print_schedule()
-# 		S.draw_schedule("after.png")
-# 
-# if __name__ == "__main__":
-# 	main()
+
+def main():
+	parser = ArgumentParser(description="Run the local search algorithm on the given schedule.")
+	parser.add_argument('B', type=int, metavar="B", help="parallelism parameter")
+	parser.add_argument('jf', type=str, metavar="job_file", help="path to file with job data")
+	parser.add_argument('sf', type=str, metavar="schedule_file", help="path to file with schedule")
+	parser.add_argument('ls_param', type=int, default=2, metavar="ls_param", help="local search parameter")
+	ns = parser.parse_args()
+
+	S = Schedule()
+	S.read_job_data(ns.jf, ns.B)
+	if not S.read_schedule_file(ns.sf):
+		print "Schedule not feasible!"
+	else:
+		S.draw_schedule("before.png")
+		for i in range(1, ns.ls_param + 1):
+			S.local_b(i)
+		S.print_schedule()
+		S.draw_schedule("after.png")
+
+if __name__ == "__main__":
+	main()
