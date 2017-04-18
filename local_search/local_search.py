@@ -92,33 +92,46 @@ class Schedule:
 		''' applies the "open b, close > b" rule repeatedly until local optimum is reached. '''
 
 		schedule_changed = True
+		# These slots were opened in some close/open operation. They should not be closed again
+		# in a future close/open operation.
+		newly_opened_slots = set()
 		while schedule_changed:
 			# find set of closed slots
 			empty = []
+			active = []
 			for t in range(self.T):
 				if self.g.edge[t][self.SINK]['capacity'] == 0:
 					empty.append(t)
+				elif t not in newly_opened_slots:
+					active.append(t)
 
 			if len(empty) < b:
 				break
 
 			schedule_changed = False
+			# Note that here we cannot simply open slots_to_open and then attempt to find
+			# the minimal solution. The order in which slots are closed affects the quality
+			# of the minimal solution. So we must trial every possible (b+1) combination
+			# of slots to close.
 			for slots_to_open in itertools.combinations(empty, b):
-				gcpy = self.g.copy()
+				for slots_to_close in itertools.combinations(active, b + 1):
+					gcpy = self.g.copy()
 
-				# open the slots
-				for t in slots_to_open:
-					self.g.edge[t][self.SINK]['capacity'] = self.B
+					# open the slots in slots_to_open
+					for t in slots_to_open:
+						self.g.edge[t][self.SINK]['capacity'] = self.B
 
-				# attempt to close as many slots as possible
-				closed_slots = self.find_minimal_feasible(slots_to_open)
+					# close the slots in slots_to_close
+					for t in slots_to_close:
+						self.g.edge[t][self.SINK]['capacity'] = 0
 
-				if len(closed_slots) <= b:
-					self.g = gcpy	# if number closed <= b, then this opening wasn't worth it
-				else:
-					schedule_changed = True
-					print "opened slots %s and closed %s" % (",".join(map(str, slots_to_open)), ",".join(map(str, closed_slots)))
-					break	# otherwise break so that we can recompute the empty slots
+					if not self.is_schedule_feasible():
+						self.g = gcpy	# this close/open wasn't worth it
+					else:
+						schedule_changed = True
+						print "opened slots %s and closed %s" % (",".join(map(str, slots_to_open)), ",".join(map(str, slots_to_close)))
+						break	# otherwise break so that we can recompute the empty slots
+				if schedule_changed: break
 
 
 	def get_schedule(self):
@@ -167,7 +180,7 @@ def main():
 		print "Schedule not feasible!"
 	else:
 		S.draw_schedule("before.png")
-		for i in range(1, ns.ls_param + 1):
+		for i in range(ns.ls_param, 0, -1):
 			S.local_b(i)
 		S.print_schedule()
 		S.draw_schedule("after.png")
