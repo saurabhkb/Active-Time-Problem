@@ -1,13 +1,16 @@
 CC = g++
 CFLAGS = -Wall -g
 
-all: minfeas greedy
+all: minfeas greedy localsearch
 
 minfeas.o: minfeas.cpp
 	$(CC) $(CFLAGS) -c minfeas.cpp
 
 greedy.o: greedy.cpp
 	$(CC) $(CFLAGS) -c greedy.cpp
+
+localsearch.o: localsearch.cpp
+	$(CC) $(CFLAGS) -c localsearch.cpp
 
 atp.o: atp.cpp atp.h
 	$(CC) $(CFLAGS) -c atp.cpp
@@ -21,5 +24,8 @@ minfeas: minfeas.o ibfs.o atp.o
 greedy: greedy.o ibfs.o atp.o
 	$(CC) -o greedy greedy.o ibfs.o atp.o ../timer/timer.o
 
+localsearch: localsearch.o ibfs.o atp.o
+	$(CC) -o localsearch localsearch.o ibfs.o atp.o ../timer/timer.o
+
 clean:
-	rm -f *.o minfeas greedy
+	rm -f *.o minfeas greedy localsearch
