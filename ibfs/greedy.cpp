@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "atp.h"
 #include "../timer/timer.h"
 #include <algorithm>
@@ -23,11 +24,15 @@ vector<bool> greedy_lr(Schedule& sched) {
 
 
 int main(int argc, char **argv) {
+	// argv[1] = parallelism parameter
+	// argv[2] = job data file
+	if(argc != 3) {
+		cout << "Invalid number of arguments!" << endl;
+		return 1;
+	}
 	Schedule sched;
-
 	Timer t;
-
-	sched.read_job_data();
+	sched.read_job_data(argv[2], atoi(argv[1]));
 
 	// obtain minimal feasible schedule and print the number of slots used
 	start_timer(t);

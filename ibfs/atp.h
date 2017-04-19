@@ -12,12 +12,14 @@ public:
 	int cap;
 	int processing_time_sum;
 
-	void read_job_data();
+	void read_job_data(char *, int);
 	void close_timeslot(int);
 	void open_timeslot(int);
+	bool is_timeslot_active(int);
 	bool is_feasible();
 
 private:
 	IBFSGraph *Graph;
+	vector<bool> active;
 };
 

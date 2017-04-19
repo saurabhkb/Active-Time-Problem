@@ -1,16 +1,19 @@
 #include "atp.h"
 #include "../timer/timer.h"
+#include <fstream>
 
-void Schedule::read_job_data() {
+void Schedule::read_job_data(char *jfile, int B) {
+	string j;
 	int r, d, p;
 	int max_deadline = -1, num_edges = 0;
 	vector<int> rvec, dvec, pvec;
 
 	processing_time_sum = 0;
+	cap = B;
 
 	// read job data
-	cin >> cap;
-	while(cin >> r >> d >> p) {
+	ifstream infile(jfile);
+	while(infile >> j >> r >> d >> p) {
 		rvec.push_back(r);
 		dvec.push_back(d);
 		pvec.push_back(p);
@@ -22,6 +25,11 @@ void Schedule::read_job_data() {
 	num_jobs = rvec.size();
 	num_times = max_deadline + 1;
 
+	// initialize the open/close indicator vector
+	active.clear();
+	for(int i = 0; i < num_times; i++)
+		active.push_back(true);
+
 	// initialize internal graph representation
 	Graph = new IBFSGraph(IBFSGraph::IB_INIT_FAST);
 
@@ -31,6 +39,7 @@ void Schedule::read_job_data() {
 
 	// add time nodes with capacity g
 	for(int i = 0; i < num_times; i++) {
+		// all slots are initially open
 		Graph->addNode(num_jobs + i, 0, cap);
 	}
 
@@ -48,11 +57,21 @@ void Schedule::read_job_data() {
 }
 
 void Schedule::close_timeslot(int t) {
+	// close timeslot by decrementing capacity only if not already closed
+	if(!active[t]) return;
 	Graph->incNode(num_jobs + t, 0, -cap);
+	active[t] = false;
 }
 
 void Schedule::open_timeslot(int t) {
+	// open timeslot by incrementing capacity only if not already open
+	if(active[t]) return;
 	Graph->incNode(num_jobs + t, 0, cap);
+	active[t] = true;
+}
+
+bool Schedule::is_timeslot_active(int t) {
+	return active[t];
 }
 
 bool Schedule::is_feasible() {
