@@ -13,18 +13,18 @@
 #########################################################
 
 This software implements the IBFS (Incremental Breadth First Search) maximum flow algorithm from
-	"Faster and More Dynamic Maximum Flow
-	by Incremental Breadth-First Search"
-	Andrew V. Goldberg, Sagi Hed, Haim Kaplan, Pushmeet Kohli,
-	Robert E. Tarjan, and Renato F. Werneck
-	In Proceedings of the 23rd European conference on Algorithms, ESA'15
-	2015
+"Faster and More Dynamic Maximum Flow
+by Incremental Breadth-First Search"
+Andrew V. Goldberg, Sagi Hed, Haim Kaplan, Pushmeet Kohli,
+Robert E. Tarjan, and Renato F. Werneck
+In Proceedings of the 23rd European conference on Algorithms, ESA'15
+2015
 and from
-	"Maximum flows by incremental breadth-first search"
-	Andrew V. Goldberg, Sagi Hed, Haim Kaplan, Robert E. Tarjan, and Renato F. Werneck.
-	In Proceedings of the 19th European conference on Algorithms, ESA'11, pages 457-468.
-	ISBN 978-3-642-23718-8
-	2011
+"Maximum flows by incremental breadth-first search"
+Andrew V. Goldberg, Sagi Hed, Haim Kaplan, Robert E. Tarjan, and Renato F. Werneck.
+In Proceedings of the 19th European conference on Algorithms, ESA'11, pages 457-468.
+ISBN 978-3-642-23718-8
+2011
 
 Copyright Haim Kaplan (haimk@cs.tau.ac.il) and Sagi Hed (sagihed@post.tau.ac.il)
 
@@ -37,7 +37,7 @@ in any resulting publication and appropriately credit it.
 
 If you require another license, please contact the above.
 
-*/
+ */
 
 
 #include <stdlib.h>
@@ -47,7 +47,7 @@ If you require another license, please contact the above.
 
 
 #define REMOVE_SIBLING(x, tmp) \
-	{ (tmp) = (x)->parent->head->firstSon; \
+{ (tmp) = (x)->parent->head->firstSon; \
 	if ((tmp) == (x)) { \
 		(x)->parent->head->firstSon = (x)->nextPtr; \
 	} else { \
@@ -56,13 +56,13 @@ If you require another license, please contact the above.
 	} }
 
 #define ADD_SIBLING(x, parentNode) \
-	{ (x)->nextPtr = (parentNode)->firstSon; \
+{ (x)->nextPtr = (parentNode)->firstSon; \
 	(parentNode)->firstSon = (x); \
-	}
+}
 
 
 IBFSGraph::IBFSGraph(IBFSInitMode a_initMode)
-:prNodeBuckets(orphan3PassBuckets)
+	:prNodeBuckets(orphan3PassBuckets)
 {
 	initMode = a_initMode;
 	arcIter = NULL;
@@ -116,7 +116,7 @@ void IBFSGraph::initSize(int numNodes, int numEdges)
 	unsigned long long arcTmpMemsize = (unsigned long long)sizeof(TmpEdge)*(unsigned long long)numEdges;
 	unsigned long long arcRealMemsize = (unsigned long long)sizeof(Arc)*(unsigned long long)(numEdges*2);
 	unsigned long long nodeMemsize = (unsigned long long)sizeof(Node**)*(unsigned long long)(numNodes*3) +
-			(IB_EXCESSES ? ((unsigned long long)sizeof(Node**)*(unsigned long long)(numNodes*2)) : 0);
+		(IB_EXCESSES ? ((unsigned long long)sizeof(Node**)*(unsigned long long)(numNodes*2)) : 0);
 	unsigned long long arcMemsize = 0;
 	if (initMode == IB_INIT_FAST) {
 		arcMemsize = arcRealMemsize + arcTmpMemsize;
@@ -146,10 +146,10 @@ void IBFSGraph::initSize(int numNodes, int numEdges)
 	arcEnd = arcs + numEdges*2;
 
 	// allocate nodes
-//	if (verbose) {
-//		fprintf(stdout, "c allocating nodes... \t [%lu MB]\n", (unsigned long)sizeof(Node)*(unsigned long)(numNodes+1) / (1<<20));
-//		fflush(stdout);
-//	}
+	//	if (verbose) {
+	//		fprintf(stdout, "c allocating nodes... \t [%lu MB]\n", (unsigned long)sizeof(Node)*(unsigned long)(numNodes+1) / (1<<20));
+	//		fflush(stdout);
+	//	}
 	this->numNodes = numNodes;
 	nodes = new Node[numNodes+1];
 	memset(nodes, 0, sizeof(Node)*(numNodes+1));
@@ -475,15 +475,15 @@ template<bool sTree> void IBFSGraph::augmentExcesses()
 	int adoptedUpToLevel = excessBuckets.maxBucket;
 
 	if (!excessBuckets.empty())
-	for (; excessBuckets.maxBucket != (excessBuckets.minBucket-1); excessBuckets.maxBucket--)
-	while ((x=excessBuckets.popFront(excessBuckets.maxBucket)) != NULL)
-	{
-		minOrphanLevel = augmentExcess<sTree>(x, 0);
-		// if we did not create new orphans
-		if (adoptedUpToLevel < minOrphanLevel) minOrphanLevel = adoptedUpToLevel;
-		adoption<sTree>(minOrphanLevel, false);
-		adoptedUpToLevel = excessBuckets.maxBucket;
-	}
+		for (; excessBuckets.maxBucket != (excessBuckets.minBucket-1); excessBuckets.maxBucket--)
+			while ((x=excessBuckets.popFront(excessBuckets.maxBucket)) != NULL)
+			{
+				minOrphanLevel = augmentExcess<sTree>(x, 0);
+				// if we did not create new orphans
+				if (adoptedUpToLevel < minOrphanLevel) minOrphanLevel = adoptedUpToLevel;
+				adoption<sTree>(minOrphanLevel, false);
+				adoptedUpToLevel = excessBuckets.maxBucket;
+			}
 	excessBuckets.reset();
 	if (orphanBuckets.maxBucket != 0) adoption<sTree>(adoptedUpToLevel+1, true);
 	// free 3pass orphans
@@ -619,125 +619,125 @@ template<bool sTree> void IBFSGraph::adoption(int fromLevel, bool toTop)
 	numOrphans=0;
 	numOrphansUniq=0;
 	for (level = fromLevel;
-		level <= orphanBuckets.maxBucket &&
-		(!IB_EXCESSES || toTop || threePassLevel || level <= excessBuckets.maxBucket);
-		level++)
-	while ((x=orphanBuckets.popFront(level)) != NULL)
-	{
-		testNode(x);
-		stats.incOrphans();
-		numOrphans++;
-		if (x->lastAugTimestamp != augTimestamp) {
-			x->lastAugTimestamp = augTimestamp;
-			if (sTree) uniqOrphansS++;
-			else uniqOrphansT++;
-			numOrphansUniq++;
-		}
-		if (IB_HYBRID_ADOPTION && threePassLevel == 0 && numOrphans >= 3*numOrphansUniq) {
-			// switch to 3pass
-			threePassLevel = 1;
-		}
-
-		//
-		// check for same level connection
-		//
-		if (x->isParentCurr) {
-			a = x->parent;
-		} else {
-			a = x->firstArc;
-			x->isParentCurr = 1;
-		}
-		x->parent = NULL;
-		aEnd = (x+1)->firstArc;
-		if (x->label != (sTree ? 1 : -1))
+			level <= orphanBuckets.maxBucket &&
+			(!IB_EXCESSES || toTop || threePassLevel || level <= excessBuckets.maxBucket);
+			level++)
+		while ((x=orphanBuckets.popFront(level)) != NULL)
 		{
-			minLabel = x->label - (sTree ? 1 : -1);
-			for (; a != aEnd; a++)
+			testNode(x);
+			stats.incOrphans();
+			numOrphans++;
+			if (x->lastAugTimestamp != augTimestamp) {
+				x->lastAugTimestamp = augTimestamp;
+				if (sTree) uniqOrphansS++;
+				else uniqOrphansT++;
+				numOrphansUniq++;
+			}
+			if (IB_HYBRID_ADOPTION && threePassLevel == 0 && numOrphans >= 3*numOrphansUniq) {
+				// switch to 3pass
+				threePassLevel = 1;
+			}
+
+			//
+			// check for same level connection
+			//
+			if (x->isParentCurr) {
+				a = x->parent;
+			} else {
+				a = x->firstArc;
+				x->isParentCurr = 1;
+			}
+			x->parent = NULL;
+			aEnd = (x+1)->firstArc;
+			if (x->label != (sTree ? 1 : -1))
 			{
-				stats.incOrphanArcs1();
-				y = a->head;
-				if ((sTree ? a->isRevResidual : a->rCap) != 0 && y->label == minLabel)
+				minLabel = x->label - (sTree ? 1 : -1);
+				for (; a != aEnd; a++)
 				{
-					x->parent = a;
-					ADD_SIBLING(x,y);
-					break;
+					stats.incOrphanArcs1();
+					y = a->head;
+					if ((sTree ? a->isRevResidual : a->rCap) != 0 && y->label == minLabel)
+					{
+						x->parent = a;
+						ADD_SIBLING(x,y);
+						break;
+					}
 				}
 			}
-		}
-		if (x->parent != NULL) {
-			if (IB_EXCESSES && x->excess) excessBuckets.add<sTree>(x);
-			continue;
-		}
-
-		//
-		// on the top level there is no need to relabel
-		//
-		if (x->label == (sTree ? topLevelS : -topLevelT)) {
-			orphanFree<sTree>(x);
-			continue;
-		}
-
-		//
-		// give up on same level - relabel it!
-		// (1) create orphan sons
-		//
-		for (y=x->firstSon; y != NULL; y=z)
-		{
-			stats.incOrphanArcs3();
-			z=y->nextPtr;
-			if (IB_EXCESSES && y->excess) excessBuckets.remove<sTree>(y);
-			orphanBuckets.add<sTree>(y);
-		}
-		x->firstSon = NULL;
-
-		//
-		// (2) 3pass relabeling: move to buckets structure
-		//
-		if (threePassLevel) {
-			x->label += (sTree ? 1 : -1);
-			orphan3PassBuckets.add<sTree>(x);
-			if (threePassLevel == 1) {
-				threePassLevel = level+1;
+			if (x->parent != NULL) {
+				if (IB_EXCESSES && x->excess) excessBuckets.add<sTree>(x);
+				continue;
 			}
-			continue;
-		}
 
-		//
-		// (2) relabel: find the lowest level parent
-		//
-		minLabel = (sTree ? topLevelS : -topLevelT);
-		if (x->label != minLabel) for (a=x->firstArc; a != aEnd; a++)
-		{
-			stats.incOrphanArcs2();
-			y = a->head;
-			if ((sTree ? a->isRevResidual : a->rCap) &&
-				// y->label != 0 ---> holds implicitly
-				(sTree ? (y->label > 0) : (y->label < 0)) &&
-				(sTree ? (y->label < minLabel) : (y->label > minLabel)))
+			//
+			// on the top level there is no need to relabel
+			//
+			if (x->label == (sTree ? topLevelS : -topLevelT)) {
+				orphanFree<sTree>(x);
+				continue;
+			}
+
+			//
+			// give up on same level - relabel it!
+			// (1) create orphan sons
+			//
+			for (y=x->firstSon; y != NULL; y=z)
 			{
-				minLabel = y->label;
-				x->parent = a;
-				if (minLabel == x->label) break;
+				stats.incOrphanArcs3();
+				z=y->nextPtr;
+				if (IB_EXCESSES && y->excess) excessBuckets.remove<sTree>(y);
+				orphanBuckets.add<sTree>(y);
 			}
-		}
+			x->firstSon = NULL;
 
-		//
-		// (3) relabel onto new parent
-		//
-		if (x->parent != NULL) {
-			x->label = minLabel + (sTree ? 1 : -1);
-			ADD_SIBLING(x, x->parent->head);
-			// add to active list of the next growth phase
-			if (sTree) {
-				if (x->label == topLevelS) activeS1.add(x);
-			} else {
-				if (x->label == -topLevelT) activeT1.add(x);
+			//
+			// (2) 3pass relabeling: move to buckets structure
+			//
+			if (threePassLevel) {
+				x->label += (sTree ? 1 : -1);
+				orphan3PassBuckets.add<sTree>(x);
+				if (threePassLevel == 1) {
+					threePassLevel = level+1;
+				}
+				continue;
 			}
-			if (IB_EXCESSES && x->excess) excessBuckets.add<sTree>(x);
-		} else {
-			orphanFree<sTree>(x);
+
+			//
+			// (2) relabel: find the lowest level parent
+			//
+			minLabel = (sTree ? topLevelS : -topLevelT);
+			if (x->label != minLabel) for (a=x->firstArc; a != aEnd; a++)
+			{
+				stats.incOrphanArcs2();
+				y = a->head;
+				if ((sTree ? a->isRevResidual : a->rCap) &&
+						// y->label != 0 ---> holds implicitly
+						(sTree ? (y->label > 0) : (y->label < 0)) &&
+						(sTree ? (y->label < minLabel) : (y->label > minLabel)))
+				{
+					minLabel = y->label;
+					x->parent = a;
+					if (minLabel == x->label) break;
+				}
+			}
+
+			//
+			// (3) relabel onto new parent
+			//
+			if (x->parent != NULL) {
+				x->label = minLabel + (sTree ? 1 : -1);
+				ADD_SIBLING(x, x->parent->head);
+				// add to active list of the next growth phase
+				if (sTree) {
+					if (x->label == topLevelS) activeS1.add(x);
+				} else {
+					if (x->label == -topLevelT) activeT1.add(x);
+				}
+				if (IB_EXCESSES && x->excess) excessBuckets.add<sTree>(x);
+			} else {
+				orphanFree<sTree>(x);
+			}
 		}
-	}
 	if (level > orphanBuckets.maxBucket) orphanBuckets.maxBucket=0;
 
 	if (threePassLevel) {
@@ -752,73 +752,73 @@ template <bool sTree> void IBFSGraph::adoption3Pass(int minBucket)
 	int minLabel, destLabel;
 
 	for (int level=minBucket; level <= orphan3PassBuckets.maxBucket; level++)
-	while ((x = orphan3PassBuckets.popFront(level)) != NULL)
-	{
-		testNode(x);
-		aEnd = (x+1)->firstArc;
-
-		// pass 2: find lowest level parent
-		if (x->parent == NULL) {
-			minLabel = (sTree ? topLevelS : -topLevelT);
-			destLabel = x->label - (sTree ? 1 : -1);
-			for (a=x->firstArc; a != aEnd; a++) {
-				stats.incOrphanArcs3();
-				y = a->head;
-				if ((sTree ? a->isRevResidual : a->rCap) &&
-					((sTree ? (y->excess > 0) : (y->excess < 0)) || y->parent != NULL) &&
-					(sTree ? (y->label > 0) : (y->label < 0)) &&
-					(sTree ? (y->label < minLabel) : (y->label > minLabel)))
-				{
-					x->parent = a;
-					if ((minLabel = y->label) == destLabel) break;
-				}
-			}
-			if (x->parent == NULL) {
-				x->label = 0;
-				if (IB_EXCESSES && x->excess) excessBuckets.add<sTree>(x);
-				continue;
-			}
-			x->label = minLabel + (sTree ? 1 : -1);
-			if (x->label != (sTree ? level : -level)) {
-				orphan3PassBuckets.add<sTree>(x);
-				continue;
-			}
-		}
-
-		// pass 3: lower potential sons and/or find first parent
-		if (x->label != (sTree ? topLevelS : -topLevelT))
+		while ((x = orphan3PassBuckets.popFront(level)) != NULL)
 		{
-			minLabel = x->label + (sTree ? 1 : -1);
-			for (a=x->firstArc; a != aEnd; a++) {
-				stats.incOrphanArcs3();
-				y = a->head;
+			testNode(x);
+			aEnd = (x+1)->firstArc;
 
-				// lower potential sons
-				if ((sTree ? a->rCap : a->isRevResidual) &&
-					(y->label == 0 ||
-					(sTree ? (minLabel < y->label) : (minLabel > y->label))))
-				{
-					if (y->label != 0) orphan3PassBuckets.remove<sTree>(y);
-					else if (IB_EXCESSES && y->excess) excessBuckets.remove<sTree>(y);
-					y->label = minLabel;
-					y->parent = a->rev;
-					orphan3PassBuckets.add<sTree>(y);
+			// pass 2: find lowest level parent
+			if (x->parent == NULL) {
+				minLabel = (sTree ? topLevelS : -topLevelT);
+				destLabel = x->label - (sTree ? 1 : -1);
+				for (a=x->firstArc; a != aEnd; a++) {
+					stats.incOrphanArcs3();
+					y = a->head;
+					if ((sTree ? a->isRevResidual : a->rCap) &&
+							((sTree ? (y->excess > 0) : (y->excess < 0)) || y->parent != NULL) &&
+							(sTree ? (y->label > 0) : (y->label < 0)) &&
+							(sTree ? (y->label < minLabel) : (y->label > minLabel)))
+					{
+						x->parent = a;
+						if ((minLabel = y->label) == destLabel) break;
+					}
+				}
+				if (x->parent == NULL) {
+					x->label = 0;
+					if (IB_EXCESSES && x->excess) excessBuckets.add<sTree>(x);
+					continue;
+				}
+				x->label = minLabel + (sTree ? 1 : -1);
+				if (x->label != (sTree ? level : -level)) {
+					orphan3PassBuckets.add<sTree>(x);
+					continue;
 				}
 			}
-		}
 
-		// relabel onto new parent
-		ADD_SIBLING(x, x->parent->head);
-		x->isParentCurr = 0;
-		if (IB_EXCESSES && x->excess) excessBuckets.add<sTree>(x);
+			// pass 3: lower potential sons and/or find first parent
+			if (x->label != (sTree ? topLevelS : -topLevelT))
+			{
+				minLabel = x->label + (sTree ? 1 : -1);
+				for (a=x->firstArc; a != aEnd; a++) {
+					stats.incOrphanArcs3();
+					y = a->head;
 
-		// add to active list of the next growth phase
-		if (sTree) {
-			if (x->label == topLevelS) activeS1.add(x);
-		} else {
-			if (x->label == -topLevelT) activeT1.add(x);
+					// lower potential sons
+					if ((sTree ? a->rCap : a->isRevResidual) &&
+							(y->label == 0 ||
+							 (sTree ? (minLabel < y->label) : (minLabel > y->label))))
+					{
+						if (y->label != 0) orphan3PassBuckets.remove<sTree>(y);
+						else if (IB_EXCESSES && y->excess) excessBuckets.remove<sTree>(y);
+						y->label = minLabel;
+						y->parent = a->rev;
+						orphan3PassBuckets.add<sTree>(y);
+					}
+				}
+			}
+
+			// relabel onto new parent
+			ADD_SIBLING(x, x->parent->head);
+			x->isParentCurr = 0;
+			if (IB_EXCESSES && x->excess) excessBuckets.add<sTree>(x);
+
+			// add to active list of the next growth phase
+			if (sTree) {
+				if (x->label == topLevelS) activeS1.add(x);
+			} else {
+				if (x->label == -topLevelT) activeT1.add(x);
+			}
 		}
-	}
 
 	orphan3PassBuckets.maxBucket = 0;
 }
@@ -1006,66 +1006,66 @@ void IBFSGraph::computeMinMarginals()
 	int *srcSide;
 	Arc *a;
 	Node *x;
-//	Node **inc, **end;
+	//	Node **inc, **end;
 	stats.reset();
 
 	// compute infinite capacity
 	srcSide = new int[nodeEnd-nodes];
-//	int *flowDiffs = new int[nodeEnd-nodes];
-//	maxDeg = maxExcess = 0;
+	//	int *flowDiffs = new int[nodeEnd-nodes];
+	//	maxDeg = maxExcess = 0;
 	for (x=nodes; x != nodeEnd; x++) {
-//		if (maxDeg < ((x+1)->firstArc - x->firstArc)) {
-//			maxDeg = ((x+1)->firstArc - x->firstArc);
-//		}
-//		if (x->excess > maxExcess) maxExcess = x->excess;
-//		else if (x->excess < -maxExcess) maxExcess = -x->excess;
+		//		if (maxDeg < ((x+1)->firstArc - x->firstArc)) {
+		//			maxDeg = ((x+1)->firstArc - x->firstArc);
+		//		}
+		//		if (x->excess > maxExcess) maxExcess = x->excess;
+		//		else if (x->excess < -maxExcess) maxExcess = -x->excess;
 		srcSide[x-nodes] = isNodeOnSrcSide(x-nodes, 2);
 	}
-//	if (((double)maxDeg*(double)maxCap + (double)maxExcess + 1) > (double)(1<<30)) {
-//		fprintf(stdout, "ERROR: Infinite Capacity is too large %.0f\n",
-//				(double)maxDeg*(double)maxCap + (double)maxExcess + 1);
-//		exit(1);
-//	}
-//	infCap = maxDeg*maxCap + maxExcess + 1;
+	//	if (((double)maxDeg*(double)maxCap + (double)maxExcess + 1) > (double)(1<<30)) {
+	//		fprintf(stdout, "ERROR: Infinite Capacity is too large %.0f\n",
+	//				(double)maxDeg*(double)maxCap + (double)maxExcess + 1);
+	//		exit(1);
+	//	}
+	//	infCap = maxDeg*maxCap + maxExcess + 1;
 
 	// compute confidence
-//	incChangedList.init(numNodes);
-//	Arc *arcsCopy = new Arc[arcEnd-arcs];
-//	Node *nodesCopy = new Node[numNodes];
+	//	incChangedList.init(numNodes);
+	//	Arc *arcsCopy = new Arc[arcEnd-arcs];
+	//	Node *nodesCopy = new Node[numNodes];
 
-//	for (x=nodes; x != nodeEnd; x++) {
-//		if (x->label > 0) {
-//			x->firstSon = NULL;
-//			x->parent = NULL;
-//			x->isParentCurr = 0;
-//			if (x->excess == 0) {
-//				x->label = 0;
-//			} else {
-//				x->label = 1;
-//			}
-//		}
-//	}
-//	topLevelS=1;
+	//	for (x=nodes; x != nodeEnd; x++) {
+	//		if (x->label > 0) {
+	//			x->firstSon = NULL;
+	//			x->parent = NULL;
+	//			x->isParentCurr = 0;
+	//			if (x->excess == 0) {
+	//				x->label = 0;
+	//			} else {
+	//				x->label = 1;
+	//			}
+	//		}
+	//	}
+	//	topLevelS=1;
 
 	int flowCopy = flow;
-//	int topLevelSCopy = topLevelS;
-//	int topLevelTCopy = topLevelT;
-//	memcpy(arcsCopy, arcs, sizeof(Arc)*(arcEnd-arcs));
-//	memcpy(nodesCopy, nodes, sizeof(Node)*(numNodes));
+	//	int topLevelSCopy = topLevelS;
+	//	int topLevelTCopy = topLevelT;
+	//	memcpy(arcsCopy, arcs, sizeof(Arc)*(arcEnd-arcs));
+	//	memcpy(nodesCopy, nodes, sizeof(Node)*(numNodes));
 
 	int nEmpty=0;
 	for (int nodeIndex=0; nodeIndex < (nodeEnd-nodes); nodeIndex++)
 	{
 		if (srcSide[nodeIndex] == 2) {
-//			flowDiffs[nodeIndex] = 0;
+			//			flowDiffs[nodeIndex] = 0;
 			nEmpty++;
 			continue;
 		}
 
-//		//***** WHILE
-//		bool newCutHasSons = true;
-//		while (newCutHasSons) {
-//		int depth=0;
+		//		//***** WHILE
+		//		bool newCutHasSons = true;
+		//		while (newCutHasSons) {
+		//		int depth=0;
 		int infCap = (srcSide[nodeIndex] ? (nodes[nodeIndex].excess) : (-nodes[nodeIndex].excess));
 		for (a=nodes[nodeIndex].firstArc; a != nodes[nodeIndex+1].firstArc; a++) {
 			if (srcSide[nodeIndex]) infCap += a->rev->rCap;
@@ -1075,25 +1075,25 @@ void IBFSGraph::computeMinMarginals()
 		else incNode(nodeIndex, infCap, 0);
 		int flowDiff = computeMaxFlow(false, !srcSide[nodeIndex])-flowCopy;
 		if (flowDiff == infCap || flowDiff == -infCap) nEmpty++;
-//		testTree();
+		//		testTree();
 
-//		srcSide[nodeIndex]|=8;
-//		newCutHasSons = false;
-//		if (nodes[nodeIndex].firstSon == NULL) nEmpty++;
-//		for (x=nodes[nodeIndex].firstSon; false && x != NULL; x=x->nextPtr)
-//		{
-//			if ((srcSide[x-nodes]&8)==0 && (srcSide[x-nodes]%4)==(srcSide[nodeIndex]%4))
-//			{
-//				depth++;
-//				if (depth >= 2) fprintf(stdout, "DEPTH %d\n", depth);
-//				if ((srcSide[nodeIndex]%4)) incNode(nodeIndex, 0, -infCap);
-//				else incNode(nodeIndex, -infCap, 0);
-//				nodeIndex = x-nodes;
-//				newCutHasSons = true;
-//				break;
-//			}
-//		}
-//		} //***** END WHILE
+		//		srcSide[nodeIndex]|=8;
+		//		newCutHasSons = false;
+		//		if (nodes[nodeIndex].firstSon == NULL) nEmpty++;
+		//		for (x=nodes[nodeIndex].firstSon; false && x != NULL; x=x->nextPtr)
+		//		{
+		//			if ((srcSide[x-nodes]&8)==0 && (srcSide[x-nodes]%4)==(srcSide[nodeIndex]%4))
+		//			{
+		//				depth++;
+		//				if (depth >= 2) fprintf(stdout, "DEPTH %d\n", depth);
+		//				if ((srcSide[nodeIndex]%4)) incNode(nodeIndex, 0, -infCap);
+		//				else incNode(nodeIndex, -infCap, 0);
+		//				nodeIndex = x-nodes;
+		//				newCutHasSons = true;
+		//				break;
+		//			}
+		//		}
+		//		} //***** END WHILE
 
 
 		if (IB_MIN_MARGINALS_DEBUG && (incIteration % ((nodeEnd-nodes)/10) == 0)) {
@@ -1108,39 +1108,39 @@ void IBFSGraph::computeMinMarginals()
 			fflush(stdout);
 		}
 
-//		end=incChangedList.list + incChangedList.len;
-//		int maxLabel=0;
-//		for (inc=incChangedList.list; inc != end; inc++) {
-//			x = *inc;
-//			int label = (x->label > 0 ? x->label : (-x->label));
-//			if (label > maxLabel) maxLabel=label;
-//			(*x) = nodesCopy[(*inc)-nodes];
-//			memcpy(x->firstArc, arcsCopy+(x->firstArc-arcs), ((x+1)->firstArc-x->firstArc)*sizeof(Arc));
-//		}
-//		if (maxLabel > 0) memset(orphanBuckets.buckets, 0, sizeof(Node*)*(maxLabel+1));
-//		topLevelS = topLevelSCopy;
-//		topLevelT = topLevelTCopy;
-//		activeS1.len = 0;
-//		activeT1.len = 0;
-//		flow = flowCopy;
-//		incChangedList.len = 0;
+		//		end=incChangedList.list + incChangedList.len;
+		//		int maxLabel=0;
+		//		for (inc=incChangedList.list; inc != end; inc++) {
+		//			x = *inc;
+		//			int label = (x->label > 0 ? x->label : (-x->label));
+		//			if (label > maxLabel) maxLabel=label;
+		//			(*x) = nodesCopy[(*inc)-nodes];
+		//			memcpy(x->firstArc, arcsCopy+(x->firstArc-arcs), ((x+1)->firstArc-x->firstArc)*sizeof(Arc));
+		//		}
+		//		if (maxLabel > 0) memset(orphanBuckets.buckets, 0, sizeof(Node*)*(maxLabel+1));
+		//		topLevelS = topLevelSCopy;
+		//		topLevelT = topLevelTCopy;
+		//		activeS1.len = 0;
+		//		activeT1.len = 0;
+		//		flow = flowCopy;
+		//		incChangedList.len = 0;
 
-//		IBSTOP;
-//		double t = IBSECS;
-//		if (t >= 0.01) {
-//			fprintf(stdout, "\n iteration %d  time %f\n", incIteration-1, t);
-//			fflush(stdout);
-//		}
+		//		IBSTOP;
+		//		double t = IBSECS;
+		//		if (t >= 0.01) {
+		//			fprintf(stdout, "\n iteration %d  time %f\n", incIteration-1, t);
+		//			fflush(stdout);
+		//		}
 
-			if (srcSide[nodeIndex]) incNode(nodeIndex, 0, -infCap);
-			else incNode(nodeIndex, -infCap, 0);
+		if (srcSide[nodeIndex]) incNode(nodeIndex, 0, -infCap);
+		else incNode(nodeIndex, -infCap, 0);
 	}
 	fprintf(stdout, "\n");
-//	if (IB_MIN_MARGINALS_TEST) {
-//		for (int i=0; i < numNodes; i++) {
-//			fprintf(stdout, "%d\n", flowDiffs[i]);
-//		}
-//	}
+	//	if (IB_MIN_MARGINALS_TEST) {
+	//		for (int i=0; i < numNodes; i++) {
+	//			fprintf(stdout, "%d\n", flowDiffs[i]);
+	//		}
+	//	}
 	fprintf(stdout, "c trivial = %.02f\n", nEmpty / (float)numNodes);
 	delete []srcSide;
 }
@@ -1154,10 +1154,10 @@ template<bool sTree> void IBFSGraph::augmentExcessesDischarge()
 {
 	Node *x;
 	if (!excessBuckets.empty())
-	for (; excessBuckets.maxBucket != (excessBuckets.minBucket-1); excessBuckets.maxBucket--)
-	while ((x=excessBuckets.popFront(excessBuckets.maxBucket)) != NULL) {
-		augmentDischarge<sTree>(x);
-	}
+		for (; excessBuckets.maxBucket != (excessBuckets.minBucket-1); excessBuckets.maxBucket--)
+			while ((x=excessBuckets.popFront(excessBuckets.maxBucket)) != NULL) {
+				augmentDischarge<sTree>(x);
+			}
 	excessBuckets.reset();
 	while ((x=excessBuckets.popFront(0)) != NULL) {
 		x->isIncremental = 0;
@@ -1277,9 +1277,9 @@ template<bool sTree> void IBFSGraph::augmentDischarge(Node *x)
 		{
 			y = a->head;
 			if ((sTree ? a->isRevResidual : a->rCap) &&
-				// y->label != 0 ---> holds implicitly
-				(sTree ? (y->label > 0) : (y->label < 0)) &&
-				(sTree ? (y->label < minLabel) : (y->label > minLabel)))
+					// y->label != 0 ---> holds implicitly
+					(sTree ? (y->label > 0) : (y->label < 0)) &&
+					(sTree ? (y->label < minLabel) : (y->label > minLabel)))
 			{
 				minLabel = y->label;
 				x->parent = a;
@@ -1369,8 +1369,8 @@ void IBFSGraph::testTree()
 			}
 			if (!(sTree ? a->rCap : a->isRevResidual)) continue;
 			if (a->head->label > topLevelS || a->head->label < -topLevelT) {
-					IBDEBUG("ILLEGAL LABEL!");
-					testExit();
+				IBDEBUG("ILLEGAL LABEL!");
+				testExit();
 			}
 			if (a->head->label == 0 || (a->head->parent == NULL && a->head->excess == 0)) {
 				IBDEBUG("CROSS OUT NODE!");
@@ -1388,8 +1388,8 @@ void IBFSGraph::testTree()
 	}
 
 	if ((int)(testExcess - totalExcess) != (flow - testFlow)) {
-//		IBDEBUG("ILLEGAL FLOW!");
-//		testExit();
+		//		IBDEBUG("ILLEGAL FLOW!");
+		//		testExit();
 	}
 }
 
@@ -1429,12 +1429,12 @@ void IBFSGraph::pushRelabelShelve(int fromLevel)
 	Node *x = NULL;
 	for (int bucket=fromLevel; bucket <= prNodeBuckets.maxBucket; bucket++) {
 		if (prNodeBuckets.isEmpty(bucket)) continue;
-//		if (x == NULL) prNodeShelves.add(prNodeBuckets.buckets[bucket]);
-//		else x->nextPtr = prNodeBuckets.buckets[bucket];
-//		for (x=prNodeBuckets.buckets[bucket]; x->nextPtr != NULL; x = x->nextPtr) {
-//			x->label = -(x->label-fromLevel);
-//		}
-//		x->label = -(x->label-fromLevel);
+		//		if (x == NULL) prNodeShelves.add(prNodeBuckets.buckets[bucket]);
+		//		else x->nextPtr = prNodeBuckets.buckets[bucket];
+		//		for (x=prNodeBuckets.buckets[bucket]; x->nextPtr != NULL; x = x->nextPtr) {
+		//			x->label = -(x->label-fromLevel);
+		//		}
+		//		x->label = -(x->label-fromLevel);
 		for (x=prNodeBuckets.buckets[bucket]; x != NULL; x = x->nextPtr) x->label = 0;
 	}
 	int numLevels = prNodeBuckets.maxBucket - fromLevel + 1;
@@ -1472,21 +1472,21 @@ template<bool sTree> void IBFSGraph::pushRelabelDir()
 	// main loop
 	int nDischarges = 0;
 	for (; excessBuckets.maxBucket >= excessBuckets.minBucket; excessBuckets.maxBucket--)
-	while ((x=excessBuckets.popFront(excessBuckets.maxBucket)) != NULL)
-	{
-		// discharge
-		level = excessBuckets.maxBucket; // excessBuckets.maxBucket may change in discharge()
-		pushRelabelDischarge<sTree>(x);
-		nDischarges++;
-		if (prNodeBuckets.maxBucket < level) {
-			excessBuckets.allocate(level+2);
-			prNodeBuckets.allocate(level+2);
-		}
+		while ((x=excessBuckets.popFront(excessBuckets.maxBucket)) != NULL)
+		{
+			// discharge
+			level = excessBuckets.maxBucket; // excessBuckets.maxBucket may change in discharge()
+			pushRelabelDischarge<sTree>(x);
+			nDischarges++;
+			if (prNodeBuckets.maxBucket < level) {
+				excessBuckets.allocate(level+2);
+				prNodeBuckets.allocate(level+2);
+			}
 
-		// global update / gap heuristic
-		if (nDischarges % (30*numNodes) == 0) pushRelabelGlobalUpdate<sTree>();
-		else if (prNodeBuckets.isEmpty(level)) pushRelabelShelve(level+1);
-	}
+			// global update / gap heuristic
+			if (nDischarges % (30*numNodes) == 0) pushRelabelGlobalUpdate<sTree>();
+			else if (prNodeBuckets.isEmpty(level)) pushRelabelShelve(level+1);
+		}
 }
 
 template<bool sTree> void IBFSGraph::pushRelabelGlobalUpdate()
@@ -1507,18 +1507,18 @@ template<bool sTree> void IBFSGraph::pushRelabelGlobalUpdate()
 		} else x->label = 0;
 	}
 	for (int bucket=1; bucket <= prNodeBuckets.maxBucket; bucket++)
-	for (x=prNodeBuckets.buckets[bucket]; x != NULL; x = x->nextPtr) {
-		aEnd = (x+1)->firstArc;
-		for (a=x->firstArc; a != aEnd; a++) {
-			if (!(sTree ? a->rCap : a->isRevResidual)) continue;
-			y = a->head;
-			if (y->parent != NULL || (sTree ? (y->excess > 0) : (y->excess < 0))) continue;
-			y->label = (sTree ? (bucket+1) : (-bucket-1));
-			prNodeBuckets.add<sTree>(y);
-			y->parent = a->rev;
-			if (y->excess) excessBuckets.add<sTree>(y);
+		for (x=prNodeBuckets.buckets[bucket]; x != NULL; x = x->nextPtr) {
+			aEnd = (x+1)->firstArc;
+			for (a=x->firstArc; a != aEnd; a++) {
+				if (!(sTree ? a->rCap : a->isRevResidual)) continue;
+				y = a->head;
+				if (y->parent != NULL || (sTree ? (y->excess > 0) : (y->excess < 0))) continue;
+				y->label = (sTree ? (bucket+1) : (-bucket-1));
+				prNodeBuckets.add<sTree>(y);
+				y->parent = a->rev;
+				if (y->excess) excessBuckets.add<sTree>(y);
+			}
 		}
-	}
 }
 
 template<bool sTree> void IBFSGraph::pushRelabelDischarge(Node *x)
@@ -1595,9 +1595,9 @@ template<bool sTree> void IBFSGraph::pushRelabelDischarge(Node *x)
 		{
 			y = a->head;
 			if ((sTree ? a->isRevResidual : a->rCap) &&
-				// y->label != 0 ---> holds implicitly
-				(sTree ? (y->label > 0) : (y->label < 0)) &&
-				(sTree ? (y->label < minLabel) : (y->label > minLabel)))
+					// y->label != 0 ---> holds implicitly
+					(sTree ? (y->label > 0) : (y->label < 0)) &&
+					(sTree ? (y->label < minLabel) : (y->label > minLabel)))
 			{
 				minLabel = y->label;
 				x->parent = a;
@@ -1678,7 +1678,7 @@ bool IBFSGraph::readFromFile(char *filename, bool checkCompile)
 	{
 		numLines++;
 		switch (line[0])
-	    {
+		{
 			case 'c':
 			case '\n':
 			case '\0':
@@ -1710,9 +1710,9 @@ bool IBFSGraph::readFromFile(char *filename, bool checkCompile)
 				}
 				break;
 
-			//
-			// Read Nodes
-			//
+				//
+				// Read Nodes
+				//
 			case 'n':
 				sscanf(line, "%c %d %d %d ", &c, &nodeId1, &capacity, &capacity2);
 				if (capacity == 0 && capacity2 == 0) break;
@@ -1731,16 +1731,16 @@ bool IBFSGraph::readFromFile(char *filename, bool checkCompile)
 				}
 				break;
 
-			//
-			// Read Arcs
-			//
+				//
+				// Read Arcs
+				//
 			case 'a':
 				sscanf(line, "%c %d %d %d %d", &c,
-					&nodeId1, &nodeId2, &capacity, &capacity2);
+						&nodeId1, &nodeId2, &capacity, &capacity2);
 				if (nodeId1 < 0 ||
-					nodeId1 >= (nodeEnd-nodes) ||
-					nodeId2 < 0 ||
-					nodeId2 >= (nodeEnd-nodes))
+						nodeId1 >= (nodeEnd-nodes) ||
+						nodeId2 < 0 ||
+						nodeId2 >= (nodeEnd-nodes))
 				{
 					fprintf(stdout, "inconsistent node index %d or %d (Line %d)\n", nodeId1, nodeId2, numLines);
 					return false;
@@ -1825,32 +1825,32 @@ bool IBFSGraph::readCompiled(FILE *pFile)
 		if (buffer[0] == 'x')  break;
 		switch(buffer[0])
 		{
-		case 'n':
-			if (capacity == 0 && capacity2 == 0) break;
-			if (file == NULL) {
-				addNode(nodeId1, capacity, capacity2);
-			} else {
-				incNode(nodeId1, capacity, capacity2);
-			}
-			break;
-		case 'a':
-			if (nodeId1 < 0 ||
-				nodeId1 >= (nodeEnd-nodes) ||
-				nodeId2 < 0 ||
-				nodeId2 >= (nodeEnd-nodes))
-			{
-				fprintf(stdout, "inconsistent node index in compiled file %d or %d (Line %d)\n", nodeId1, nodeId2, line);
-				return false;
-			}
-			if (file == NULL) {
-				addEdge(nodeId1, nodeId2, capacity, capacity2);
-			} else {
-				incEdge(nodeId1, nodeId2, capacity, capacity2);
-			}
-			break;
-		case 'p':
-			fileHasMore = true;
-			break;
+			case 'n':
+				if (capacity == 0 && capacity2 == 0) break;
+				if (file == NULL) {
+					addNode(nodeId1, capacity, capacity2);
+				} else {
+					incNode(nodeId1, capacity, capacity2);
+				}
+				break;
+			case 'a':
+				if (nodeId1 < 0 ||
+						nodeId1 >= (nodeEnd-nodes) ||
+						nodeId2 < 0 ||
+						nodeId2 >= (nodeEnd-nodes))
+				{
+					fprintf(stdout, "inconsistent node index in compiled file %d or %d (Line %d)\n", nodeId1, nodeId2, line);
+					return false;
+				}
+				if (file == NULL) {
+					addEdge(nodeId1, nodeId2, capacity, capacity2);
+				} else {
+					incEdge(nodeId1, nodeId2, capacity, capacity2);
+				}
+				break;
+			case 'p':
+				fileHasMore = true;
+				break;
 		}
 	}
 
