@@ -18,13 +18,13 @@ atp.o: atp.cpp atp.h
 ibfs.o: ibfs.cpp
 	$(CC) $(CFLAGS) -c ibfs.cpp
 
-minfeas: minfeas.o ibfs.o atp.o
+minfeas: minfeas.o ibfs.o atp.o ../timer/timer.o
 	$(CC) -o minfeas minfeas.o ibfs.o atp.o ../timer/timer.o
 
-greedy: greedy.o ibfs.o atp.o
+greedy: greedy.o ibfs.o atp.o ../timer/timer.o
 	$(CC) -o greedy greedy.o ibfs.o atp.o ../timer/timer.o
 
-localsearch: localsearch.o ibfs.o atp.o
+localsearch: localsearch.o ibfs.o atp.o ../timer/timer.o
 	$(CC) -o localsearch localsearch.o ibfs.o atp.o ../timer/timer.o
 
 clean:
