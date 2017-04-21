@@ -7,20 +7,6 @@
 #include <fstream>
 #include <sstream>
 
-// Splits char array by delim and returns a vector of string tokens.
-vector<string> split(const char *str, char delim = ' ') {
-	vector<string> tokens;
-	while(*str) {
-		const char *start = str;
-		while(*str && *str != delim) {
-			str++;
-		}
-		tokens.push_back(string(start, str));
-		str++;	// skip the delimiter
-	}
-	return tokens;
-}
-
 // Converts an int to a string.
 string to_string(int& n) {
 	ostringstream os;
@@ -72,9 +58,7 @@ void read_schedule(Schedule& sched, char *schedfile) {
 
 	// open only the ones specified in the given schedule
 	while(getline(infile, line)) {
-		vector<string> tok1 = split(line.c_str(), ':');
-		int t = atoi(tok1[0].c_str());
-		sched.open_timeslot(t);
+		sched.open_timeslot(atoi(line.c_str()));
 	}
 }
 
@@ -107,6 +91,7 @@ void localsearch(Schedule& sched, int b) {
 				// open and close the appropriate time slots
 				for(unsigned k = 0; k < to_open_combos[i].size(); k++)
 					sched.open_timeslot(to_open_combos[i][k]);
+
 				for(unsigned k = 0; k < to_close_combos[j].size(); k++)
 					sched.close_timeslot(to_close_combos[j][k]);
 
@@ -114,12 +99,22 @@ void localsearch(Schedule& sched, int b) {
 					// undo the operations
 					for(unsigned k = 0; k < to_open_combos[i].size(); k++)
 						sched.close_timeslot(to_open_combos[i][k]);
+
 					for(unsigned k = 0; k < to_close_combos[j].size(); k++)
 						sched.open_timeslot(to_close_combos[j][k]);
 				} else {
-					// otherwise break, so that we can keep this change and recompute the empty and active slots
-					// for the next iteration
-					cout << "opened " << join(to_open_combos[i]) << " and closed " << join(to_close_combos[j]) << endl;
+					// otherwise break, so that we can keep this change
+					// and recompute the empty and active slots for the next iteration
+					cout << "opened " << join(to_open_combos[i]);
+					cout << " and closed " << join(to_close_combos[j]) << endl;
+
+					// add the opened slots to the newly_opened_slots set so that those
+					// slots aren't closed again.
+					for(unsigned k = 0; k < to_open_combos[i].size(); k++) {
+						newly_opened_slots.insert(to_open_combos[i][k]);
+					}
+					// TODO now that we know that at least b + 1 slots can be closed, try to find
+					// minimal feasible solution here.
 					schedule_changed = true;
 					break;
 				}
@@ -156,4 +151,6 @@ int main(int argc, char **argv) {
 
 	cout << get_duration(t) << endl;
 	cout << soln << endl;
+
+	sched.print_job_assignment();
 }
