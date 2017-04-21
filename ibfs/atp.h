@@ -17,9 +17,14 @@ public:
 	void open_timeslot(int);
 	bool is_timeslot_active(int);
 	bool is_feasible();
+	bool is_job_assigned(int, int);
+	void print_job_assignment();
 
 private:
 	IBFSGraph *Graph;
 	vector<bool> active;
+
+	vector<string> jv;
+	vector<int> rv, dv, pv;
 };
 

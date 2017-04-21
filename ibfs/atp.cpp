@@ -6,23 +6,27 @@ void Schedule::read_job_data(char *jfile, int B) {
 	string j;
 	int r, d, p;
 	int max_deadline = -1, num_edges = 0;
-	vector<int> rvec, dvec, pvec;
 
 	processing_time_sum = 0;
 	cap = B;
 
 	// read job data
+	jv.clear();
+	rv.clear();
+	dv.clear();
+	pv.clear();
 	ifstream infile(jfile);
 	while(infile >> j >> r >> d >> p) {
-		rvec.push_back(r);
-		dvec.push_back(d);
-		pvec.push_back(p);
+		jv.push_back(j);
+		rv.push_back(r);
+		dv.push_back(d);
+		pv.push_back(p);
 		if(max_deadline < d) max_deadline = d;
 		num_edges += d - r + 1;
 	}
 
 	// initialize private variables
-	num_jobs = rvec.size();
+	num_jobs = rv.size();
 	num_times = max_deadline + 1;
 
 	// initialize the open/close indicator vector
@@ -45,9 +49,9 @@ void Schedule::read_job_data(char *jfile, int B) {
 
 	// add job nodes
 	for(int i = 0; i < num_jobs; i++) {
-		Graph->addNode(i, pvec[i], 0);
-		processing_time_sum += pvec[i];
-		for(int j = rvec[i]; j <= dvec[i]; j++) {
+		Graph->addNode(i, pv[i], 0);
+		processing_time_sum += pv[i];
+		for(int j = rv[i]; j <= dv[i]; j++) {
 			Graph->addEdge(i, num_jobs + j, 1, 0);
 		}
 	}
@@ -77,4 +81,29 @@ bool Schedule::is_timeslot_active(int t) {
 bool Schedule::is_feasible() {
 	Graph->computeMaxFlow(true);
 	return Graph->getFlow() == processing_time_sum;
+}
+
+bool Schedule::is_job_assigned(int j, int t) {
+	return Graph->getResidualCapacity(j, num_jobs + t) == 0;
+}
+
+void Schedule::print_job_assignment() {
+	Graph->computeMaxFlow(true);
+	vector<vector<string> > schedule(num_times, vector<string>());
+	for(int i = 0; i < num_jobs; i++) {
+		for(int t = rv[i]; t <= dv[i]; t++) {
+			if(is_job_assigned(i, t)) {
+				schedule[t].push_back(jv[i]);
+			}
+		}
+	}
+	for(size_t i = 0; i < schedule.size(); i++) {
+		if(schedule[i].size() > 0) {
+			cout << i + 1 << ":";
+			for(size_t j = 0; j < schedule[i].size(); j++) {
+				cout << schedule[i][j] << ", ";
+			}
+			cout << endl;
+		}
+	}
 }
