@@ -65,15 +65,16 @@ void read_schedule(Schedule& sched, char *schedfile) {
 void localsearch(Schedule& sched, int b) {
 	bool schedule_changed = true;
 	set<int> newly_opened_slots;
+	set<int> newly_closed_slots;
 
 	while(schedule_changed) {
 		// New iteration:
 		// find set of empty and active slots
 		vector<int> empty, active;
 		for(int i = 0; i < sched.num_times; i++) {
-			if(!sched.is_timeslot_active(i)) {
+			if(!sched.is_timeslot_active(i) && newly_closed_slots.count(i) == 0) {
 				empty.push_back(i);
-			} else if(newly_opened_slots.count(i) == 0) {
+			} else if(sched.is_timeslot_active(i) && newly_opened_slots.count(i) == 0) {
 				active.push_back(i);
 			}
 		}
@@ -113,6 +114,9 @@ void localsearch(Schedule& sched, int b) {
 					for(unsigned k = 0; k < to_open_combos[i].size(); k++) {
 						newly_opened_slots.insert(to_open_combos[i][k]);
 					}
+					for(unsigned k = 0; k < to_close_combos[j].size(); k++) {
+						newly_closed_slots.insert(to_close_combos[j][k]);
+					}
 					// TODO now that we know that at least b + 1 slots can be closed, try to find
 					// minimal feasible solution here.
 					schedule_changed = true;
@@ -129,7 +133,8 @@ int main(int argc, char **argv) {
 	// argv[1] = parallelism parameter
 	// argv[2] = job file
 	// argv[3] = schedule file
-	if(argc != 4) {
+	// argv[4] = local search parameter
+	if(argc != 5) {
 		cout << "Invalid number of arguments" << endl;
 		return 1;
 	}
@@ -143,7 +148,9 @@ int main(int argc, char **argv) {
 	}
 
 	start_timer(t);
-	localsearch(sched, 1);
+	for(int i = atoi(argv[4]); i >= 1; i--) {
+		localsearch(sched, i);
+	}
 	stop_timer(t);
 
 	int soln = 0;
@@ -152,5 +159,4 @@ int main(int argc, char **argv) {
 	cout << get_duration(t) << endl;
 	cout << soln << endl;
 
-	sched.print_job_assignment();
 }

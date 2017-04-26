@@ -99,7 +99,7 @@ void Schedule::print_job_assignment() {
 	}
 	for(size_t i = 0; i < schedule.size(); i++) {
 		if(schedule[i].size() > 0) {
-			cout << i + 1 << ":";
+			cout << i << ":";
 			for(size_t j = 0; j < schedule[i].size(); j++) {
 				cout << schedule[i][j] << ", ";
 			}
