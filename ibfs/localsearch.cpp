@@ -48,7 +48,7 @@ vector<vector<int> > generate_combinations(vector<int> tocombine, int k) {
 }
 
 // Reads a schedule file and modifies sched to reflect the schedule that was read.
-void read_schedule(Schedule& sched, char *schedfile) {
+bool read_schedule(Schedule& sched, char *schedfile) {
 	// close all timeslots
 	for(int i = 0; i < sched.num_times; i++) {
 		sched.close_timeslot(i);
@@ -58,8 +58,24 @@ void read_schedule(Schedule& sched, char *schedfile) {
 
 	// open only the ones specified in the given schedule
 	while(getline(infile, line)) {
-		sched.open_timeslot(atoi(line.c_str()));
+		// if line is of the form start-end
+		if(line.find('-') != string::npos) {
+			int s = 0, e = 0;
+			if(sscanf(line.c_str(), "%d-%d", &s, &e) == 2) {
+				if(s < 0 || e > sched.num_times || s > e)
+					return false;
+				while(s <= e)
+					sched.open_timeslot(s++);
+			} else
+				return false;
+		} else {
+			int t = atoi(line.c_str());
+			if(t < 0 || t > sched.num_times)
+				return false;
+			sched.open_timeslot(t);
+		}
 	}
+	return true;
 }
 
 void localsearch(Schedule& sched, int b) {
@@ -141,7 +157,9 @@ int main(int argc, char **argv) {
 	Schedule sched;
 	Timer t;
 	sched.read_job_data(argv[2], atoi(argv[1]));
-	read_schedule(sched, argv[3]);
+	if(!read_schedule(sched, argv[3])) {
+		cout << "Invalid schedule format!" << endl;
+	}
 	if(!sched.is_feasible()) {
 		cout << "Schedule is not feasible!" << endl;
 		return 1;
